@@ -5,9 +5,10 @@ if True:
     from tkinter import filedialog, messagebox, ttk, PhotoImage
     from datetime import date, datetime
     from PIL import Image, ImageTk
+    from eurodatahos_vs_shrepoint import EuroShare
 
 
-class AppUI:
+class AppUI():
 
     def __init__(self):
         root = tk.Tk()
@@ -32,6 +33,10 @@ class AppUI:
         self.csvIcon = self.csvIcon.subsample(10, 10)
         self.viewIcon = PhotoImage(file="media/view.png")
         self.viewIcon = self.viewIcon.subsample(50, 50)
+        
+        self.typefile = None
+        self.df1 = pd.DataFrame()
+        self.df2 = pd.DataFrame()
 
         super().__init__()
         self.Home()
@@ -104,7 +109,7 @@ class AppUI:
             width=160,
             bd=1,
             bg="#DCDCDC",
-            command=None,
+            command=self.Excel,
             pady=2
         ).place(relx=0.23, rely=0.21)
 
@@ -117,7 +122,7 @@ class AppUI:
             width=160,
             bd=1,
             bg="#DCDCDC",
-            command=None,
+            command=self.CSV,
         ).place(relx=0.53, rely=0.21)
     
         self.ViewDataBtn = tk.Button(
@@ -207,3 +212,207 @@ class AppUI:
         
     def Window_EuroDataHos_vs_Sharepoint(self):
         self.Toplevel_Window("EuroDataHos versus Sharepoint", "EuroDataHOS")
+
+    def preview_data(self, path, df):
+        """
+        Cette sous fonction de la fonction Load_data_file() permet d'imorter les données et d'ouvrir une petite fenetre afin de prévisualiser les 5 premières lignes et enfin les données sont ok elle permet d'importer toutes les données
+        """
+
+        self.preview = tk.Toplevel(self.TopWindow)
+        self.preview.title("Previous Data")
+        self.preview.iconbitmap("media/TotalEnergies.ico")
+        self.preview.geometry("600x250+15+15")
+        self.preview.resizable(width=False, height=False)
+        
+        # Add Some Style
+        style = ttk.Style()
+
+        # Pick A Theme
+        style.theme_use("clam")
+
+        # Configure the Treeview Colors
+        style.configure(
+            "Treeview.Heading",
+            background="lightblue",
+            foreground="black",
+            rowheight=25,
+            fieldbackground="white",
+        )
+        # style.theme_use("clam")
+        # style.configure(
+        #     "Treeview.Heading", background="lightblue", foreground="black"
+        # )
+
+        # Change Selected Color
+        style.map("Treeview", background=[("selected", "#347083")])
+
+        def clear_data():
+            self.tv_All_Data.delete(*self.tv_All_Data.get_children())
+            return None
+
+        # def ok_data_V():
+        #     """Cette fonction valide les données et affiche toutes les données. Elle est relier au bouton ok pour valider"""
+
+        #     self.fil_data_to_treeview_listbox(df, w="all")
+        #     self.switchButtonState()
+        #     self.preview.destroy()
+        #     return df
+
+        frame1 = tk.LabelFrame(self.preview, text=f"{path}")
+        frame1.place(height=170, width=530, rely=0.02, relx=0.05)
+
+        self.tv_All_Data = ttk.Treeview(frame1)
+        self.tv_All_Data.place(relheight=1, relwidth=1)
+
+        # commande signifie mettre à jour la vue de l'axe y du widget
+        treescrolly = tk.Scrollbar(frame1, orient="vertical", command=self.tv_All_Data.yview)
+
+        # commande signifie mettre à jour la vue axe x du widget
+        treescrollx = tk.Scrollbar(frame1, orient="horizontal", command=self.tv_All_Data.xview)
+
+        # affecter les barres de défilement au widget Treeview
+        self.tv_All_Data.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)
+
+        # faire en sorte que la barre de défilement remplisse l'axe x du widget Treeview
+        treescrollx.pack(side="bottom", fill="x")
+
+        # faire en sorte que la barre de défilement remplisse l'axe y du widget Treeview
+        treescrolly.pack(side="right", fill="y")
+
+        # fram_check_btn_lbl = tk.Frame(self.preview)
+        # fram_check_btn_lbl.place(relx=0.05, rely=0.73)
+
+        # self.VarCheckBtn_add_index = tk.BooleanVar()
+        # self.VarCheckBtn_add_index.set(True)
+        # CheckBtn_add_index = tk.Checkbutton(
+        #     fram_check_btn_lbl,
+        #     variable=self.VarCheckBtn_add_index,
+        #     command=None,
+        # )
+        # CheckBtn_add_index.grid(row=0, column=0)
+
+        # text_checkbtn_add_index = tk.Label(
+        #     fram_check_btn_lbl, text="Add an index column"
+        # )
+        # text_checkbtn_add_index.grid(row=0, column=1)
+
+        OkBtn_data = tk.Button(
+            self.preview,
+            # text="Ok",
+            # background="#40A497",
+            # activeforeground="white",
+            # activebackground="#40A497",
+            text="OK",
+            background="#6DA3F4",
+            activebackground="#0256CD",
+            foreground="white",
+            activeforeground="white",
+            width=12,
+            height=1,
+            command=None,
+        ).place(relx=0.32, rely=0.87)
+
+        Cancel_data = tk.Button(
+            self.preview,
+            text="Cancel",
+            background="#CCCCCC",
+            width=12,
+            height=1,
+            command=self.preview.destroy,
+        ).place(relx=0.48, rely=0.87)
+
+        global count
+        count = 0
+
+        self.tv_All_Data.tag_configure("oddrow", background="white")
+        self.tv_All_Data.tag_configure("evenrow", background="#D3D3D3")
+
+        # vider le treeview
+        self.tv_All_Data.delete(*self.tv_All_Data.get_children())
+
+        self.tv_All_Data["column"] = list(df.columns)
+        self.tv_All_Data["show"] = "headings"
+
+        for column in self.tv_All_Data["columns"]:
+            self.tv_All_Data.column(column, anchor="w")
+            self.tv_All_Data.heading(column, anchor="w", text=column)
+
+        df_rows = df.to_numpy().tolist()
+        for row in df_rows:
+            if count % 2 == 0:
+                self.tv_All_Data.insert(
+                    "",
+                    "end",
+                    iid=count,
+                    values=row,
+                    tags=("evenrow",),
+                )
+            else:
+                self.tv_All_Data.insert(
+                    "",
+                    "end",
+                    iid=count,
+                    values=row,
+                    tags=("oddrow",),
+                )
+            count += 1
+
+        self.tv_All_Data.insert("", "end", values="")
+
+        return None
+        
+    def ImportData(self):
+
+        """
+        Cette grosse fonction permet d'abord d'ouvrir l'explorateur et parcourir le schéma du fichier, enssuite de le prévisualiser les 5 premières lignes et enfin les données sont ok elle permet d'importer toutes les données
+        """
+
+        if self.typefile == "Excel":
+            path_filename = filedialog.askopenfilename(
+                initialdir="E:\Total\Station Data\Master data\Data source",
+                title="Select A File",
+                filetype=(("xlsx files", "*.xlsx"), ("All Files", "*.*")),
+            )
+
+        elif self.typefile == "CSV":
+            path_filename = filedialog.askopenfilename(
+                initialdir="E:\Total\Station Data\Master data\Data source",
+                title="Select A File",
+                filetype=(("csv files", "*.csv"), ("All Files", "*.*")),
+            )
+
+        else:
+            path_filename = filedialog.askopenfilename(
+                initialdir="E:\Total\Station Data\Master data\Data source",
+                title="Select A File",
+                filetype=(("All Files", "*.*")),
+            )
+
+        # print(path_filename[-4:])
+        # print(path_filename)
+        if path_filename:
+            """Si le fichier sélectionné est valide, cela chargera le fichier"""
+
+            try:
+                df = EuroShare.LoadData(self,path_filename[-4:], path_filename)
+            except ValueError:
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                return None
+            except FileNotFoundError:
+                tk.messagebox.showerror("Information", f"No such file as {path_filename}")
+                return None
+            self.VarLabelPath.set(path_filename)
+            self.preview_data(path_filename, df)
+
+        else:
+            pass
+        
+    def Excel(self):
+        self.typefile = "Excel"
+        self.ImportData()
+    def CSV(self):
+        self.typefile = "CSV"
+        self.ImportData()
+        
+    def runing(self):
+        pass

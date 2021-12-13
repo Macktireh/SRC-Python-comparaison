@@ -31,44 +31,54 @@ class EuroShare():
 
         return self.ecart_X, self.ecart_Y, self.commun
 
-    def LaodandPreprocess(self):
+    def LoadData(self, typ, path, sheet=None):
+        if typ == '.csv':
+            self.df = pd.read_csv(path)
+        else:
+            if sheet is None or "":
+                self.df = pd.read_excel(path)
+            else:
+                self.df= pd.read_excel(path, sheet_name=sheet)
+        
+        return self.df
 
-        # Chargement de Data EuroDataHOS et prétraitement
-        self.df_hos = pd.read_excel(self.path_data_HOS)
-        #df_hos.rename(columns={'SAPCODE': 'SAPCode'}, inplace=True)
-        self.df_hos = self.df_hos.drop_duplicates(
-            subset="SAPCode", keep='first')
-        self.df_hos['SAPCode'] = self.df_hos['SAPCode'].str.strip()
-        self.df_hos['SAPCode'] = self.df_hos['SAPCode'].astype(str)
-        self.df_hos['FCC/POSsolution'] = self.df_hos['FCC / POSsolution'].str.strip()
+    def Preprocess_EuroDataHos(self, df):
 
-        for h in range(self.df_hos.shape[0]):
-            self.df_hos['FCC/POSsolution'].iloc[h] = self.df_hos['FCC/POSsolution'].iloc[h].split(" ")[
+        #df.rename(columns={'SAPCODE': 'SAPCode'}, inplace=True)
+        df = df.drop_duplicates(subset="SAPCode", keep='first')
+        df['SAPCode'] = df['SAPCode'].str.strip()
+        df['SAPCode'] = df['SAPCode'].astype(str)
+        df['FCC/POSsolution'] = df['FCC / POSsolution'].str.strip()
+
+        for h in range(df.shape[0]):
+            df['FCC/POSsolution'].iloc[h] = df['FCC/POSsolution'].iloc[h].split(" ")[
                 0]
-            if self.df_hos['Solution activée'].iloc[h] == "FCC + DMS-Shop":
-                if self.df_hos['FCC/POSsolution'].iloc[h] == "FUELPOS":
-                    self.df_hos['Corespo Installed Solution'].iloc[h] = "DMS-FCC-POS"
-            if self.df_hos['Corespo Installed Solution'].iloc[h] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS"]:
-                self.df_hos['Corresp EPT connected'].iloc[h] = "Not Connected FCC-POS"
-
-        # Chargement de Data Sharepoint et prétraitement
-        self.df_sharepoint = pd.read_excel(self.path_data_sharepoint)
-        self.df_sharepoint = self.df_sharepoint.drop_duplicates()
-        self.df_sharepoint['SAPCode'] = self.df_sharepoint['SAPCode'].str.strip()
-        self.df_sharepoint['SAPCode'] = self.df_sharepoint['SAPCode'].astype(
+            if df['Solution activée'].iloc[h] == "FCC + DMS-Shop":
+                if df['FCC/POSsolution'].iloc[h] == "FUELPOS":
+                    df['Corespo Installed Solution'].iloc[h] = "DMS-FCC-POS"
+            if df['Corespo Installed Solution'].iloc[h] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS"]:
+                df['Corresp EPT connected'].iloc[h] = "Not Connected FCC-POS"
+        return df
+    
+    def Preprocess_Sharepoint(self, df):
+        
+        # self.df_sharepoint = pd.read_excel(self.path_data_sharepoint)
+        df = df.drop_duplicates()
+        df['SAPCode'] = df['SAPCode'].str.strip()
+        df['SAPCode'] = df['SAPCode'].astype(
             str)
-        self.df_sharepoint['EPTConnected'] = self.df_sharepoint['EPTConnected'].str.strip(
+        df['EPTConnected'] = df['EPTConnected'].str.strip(
         )
-        self.df_sharepoint['ATGConnected'] = self.df_sharepoint['ATGConnected'].str.strip(
+        df['ATGConnected'] = df['ATGConnected'].str.strip(
         )
-        self.df_sharepoint['ATGConnected'] = self.df_sharepoint['ATGConnected'].replace(
+        df['ATGConnected'] = df['ATGConnected'].replace(
             "Not connected FCC", "Not Connected FCC")
 
-        for s in range(self.df_sharepoint.shape[0]):
-            if self.df_sharepoint['InstalledSolutionOnSite'].iloc[s] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS", "DMS-FCC-POS-BOS"]:
-                self.df_sharepoint['EPTConnected'].iloc[s] = "Not Connected FCC-POS"
+        for s in range(df.shape[0]):
+            if df['InstalledSolutionOnSite'].iloc[s] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS", "DMS-FCC-POS-BOS"]:
+                df['EPTConnected'].iloc[s] = "Not Connected FCC-POS"
 
-        return self.df_hos, self.df_sharepoint
+        return df
 
     def export_excel(self, path, df, SheetName):
         self.writer_list = pd.ExcelWriter(path, engine='openpyxl')
@@ -125,9 +135,14 @@ class EuroShare():
                             self.df_commun_avec_sh['ATGConnected Source'].iloc[j] = self.df_hos['ATGConnected Source'].iloc[k]
 
     def reduce(self):
-        # charger et prétraiter les données EuroDataHOS et sharepoint
-        self.df_hos, self.df_sharepoint = self.LaodandPreprocess()
+        # charger les données EuroDataHOS et sharepoint
+        self.df_hos = self.LoadData('excel', path_data_HOS)
+        self.df_sharepoint = self.LoadData('excel', path_data_sharepoint)
 
+        # Prétraiter les données EuroDataHOS et sharepoint
+        self.df_hos = self.Preprocess_EuroDataHos(self.df_hos)
+        self.df_sharepoint = self.Preprocess_Sharepoint(self.df_sharepoint)
+        
         # Comparer les données sharepoint et EuroDataHOS
         self.X, self.Y, self.df_commun_avec_sh = self.comparer(
             self.df_sharepoint, self.df_hos, 'SAPCode')
@@ -165,18 +180,18 @@ path_data_HOS = "E:/AppTotalEnergies/SRC-Python-comparaison/InputData/DataAppWee
 path_data_sharepoint = "E:/AppTotalEnergies/SRC-Python-comparaison/InputData/sharepoint.xlsx"
 path_Out = f"E:/AppTotalEnergies/SRC-Python-comparaison/OutputData/KPI-SIS-AFRIQUE-S{Week}-{today}.xlsx"
 
-start = datetime.now()
-m = EuroShare(path_data_HOS, path_data_sharepoint, path_Out)
-m.reduce()
+# start = datetime.now()
+# m = EuroShare(path_data_HOS, path_data_sharepoint, path_Out)
+# m.reduce()
 
-os.system('cls' if os.name == 'nt' else 'clear')
-print()
-print("--------------------")
-print("Terminer avec succès")
-print("--------------------")
-print()
+# os.system('cls' if os.name == 'nt' else 'clear')
+# print()
+# print("--------------------")
+# print("Terminer avec succès")
+# print("--------------------")
+# print()
 
-end = datetime.now()
-tm = end - start
-print("temps d'exécution :", tm)
-print()
+# end = datetime.now()
+# tm = end - start
+# print("temps d'exécution :", tm)
+# print()
