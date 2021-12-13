@@ -47,6 +47,6 @@ def main_window():
     app = AppUI()
 
 
-splach_root.after(3000, main_window)
+splach_root.after(1000, main_window)
 
 tk.mainloop()

@@ -3,7 +3,6 @@ import tkinter as tk
 from typing import Sized
 import pandas as pd
 import numpy as np
-import pyttsx3
 import os
 import shutil
 import time
