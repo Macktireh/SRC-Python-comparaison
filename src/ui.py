@@ -34,6 +34,7 @@ class AppUI():
         self.viewIcon = PhotoImage(file="media/view.png")
         self.viewIcon = self.viewIcon.subsample(50, 50)
         
+        self.subject = ""
         self.typefile = None
         self.id = 0
         self.PathImport = ""
@@ -232,6 +233,7 @@ class AppUI():
         self.BtnFermer.place(relx=0.65, rely=0.2)
     
     def Toplevel_Window(self, title, source):
+        
         self.TopWindow = tk.Toplevel(self.root)
         self.TopWindow.grab_set()
         self.TopWindow.title("Data App Desktop")
@@ -254,6 +256,7 @@ class AppUI():
         self.ContainerBtn(self.TopWindow)
 
     def Window_SAP_vs_Sharepoint(self):
+        # self.subject = 
         self.Toplevel_Window("SAP versus Sharepoint", "SAP")
         
     def Window_EuroDataHos_vs_Sharepoint(self):
