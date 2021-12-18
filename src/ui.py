@@ -35,6 +35,8 @@ class AppUI():
         self.viewIcon = self.viewIcon.subsample(50, 50)
         
         self.typefile = None
+        self.id = 0
+        self.PathImport = ""
         self.df1 = pd.DataFrame()
         self.df2 = pd.DataFrame()
 
@@ -82,26 +84,24 @@ class AppUI():
             command=self.root.quit)
         self.BtnExit.place(relx=0.35, rely=0.6, relheight=0.15, relwidth=0.3)
         
-    def Container(self, win, title, position=0):
+    def Container_1(self, win, title):
         
-        self.Frame = tk.LabelFrame(
+        self.Frame_1 = tk.LabelFrame(
             win, 
             text=title, 
             font=("Helvetica 10 bold"), 
             fg="#004C8C", labelanchor='n')
-        if position == 0:
-            self.Frame.place(relx=0.02, rely=0.08, relheight=0.35, relwidth=0.96)
-        else:
-            self.Frame.place(relx=0.02, rely=0.45, relheight=0.35, relwidth=0.96)
+        self.Frame_1.place(relx=0.02, rely=0.08, relheight=0.35, relwidth=0.96)
+
             
-        self.VarLabelPath = tk.StringVar()
-        self.VarLabelPath.set("bla bla bla")
-        self.LabelPath = tk.Label(self.Frame, textvariable=self.VarLabelPath, bg="#FAEBD7")
-        self.LabelPath.pack(fill="x")
+        self.VarLabelPath_1 = tk.StringVar()
+        self.VarLabelPath_1.set("bla bla bla")
+        self.LabelPath_1 = tk.Label(self.Frame_1, textvariable=self.VarLabelPath_1, bg="#FAEBD7")
+        self.LabelPath_1.pack(fill="x")
         
         # Button import avec icon
-        self.excelBtn = tk.Button(
-            self.Frame,
+        self.excelBtn_1 = tk.Button(
+            self.Frame_1,
             image=self.excelIcon,
             text="Import data from Excel",
             compound="top",
@@ -113,20 +113,17 @@ class AppUI():
             pady=2
         ).place(relx=0.23, rely=0.21)
 
-        self.csvBtn = tk.Button(
-            self.Frame,
-            image=self.csvIcon,
-            text="Import data from CSV",
-            compound="top",
-            height=70,
-            width=160,
-            bd=1,
-            bg="#DCDCDC",
-            command=self.CSV,
-        ).place(relx=0.53, rely=0.21)
+        self.listbox_1 = tk.Listbox(self.Frame_1)
+        self.listbox_1.place(relx=0.65, rely=0.17, relheight=0.8, relwidth=0.3)
+        
+        treescrolly = tk.Scrollbar(self.listbox_1, orient="vertical", command=self.listbox_1.yview)
+        treescrollx = tk.Scrollbar(self.listbox_1, orient="horizontal", command=self.listbox_1.xview)
+        self.listbox_1.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)
+        treescrollx.pack(side="bottom", fill="x")
+        treescrolly.pack(side="right", fill="y")
     
-        self.ViewDataBtn = tk.Button(
-            self.Frame,
+        self.ViewDataBtn_1 = tk.Button(
+            self.Frame_1,
             image=self.viewIcon,
             text=f"   Voir le données {title}",
             compound="left",
@@ -134,7 +131,56 @@ class AppUI():
             width=190,
             bd=1,
             bg="#DCDCDC",
-            command=None,
+            command=self.ViewData,
+        ).place(relx=0.35, rely=0.8)
+    
+    def Container_2(self, win, title):
+        
+        self.Frame_2 = tk.LabelFrame(
+            win, 
+            text=title, 
+            font=("Helvetica 10 bold"), 
+            fg="#004C8C", labelanchor='n')
+        self.Frame_2.place(relx=0.02, rely=0.45, relheight=0.35, relwidth=0.96)
+            
+        self.VarLabelPath_2 = tk.StringVar()
+        self.VarLabelPath_2.set("bla bla bla")
+        self.LabelPath_2 = tk.Label(self.Frame_2, textvariable=self.VarLabelPath_2, bg="#FAEBD7")
+        self.LabelPath_2.pack(fill="x")
+        
+        # Button import avec icon
+        self.excelBtn_2 = tk.Button(
+            self.Frame_2,
+            image=self.excelIcon,
+            text="Import data from Excel",
+            compound="top",
+            height=70,
+            width=160,
+            bd=1,
+            bg="#DCDCDC",
+            command=self.Excel,
+            pady=2
+        ).place(relx=0.23, rely=0.21)
+
+        self.listbox_2 = tk.Listbox(self.Frame_2)
+        self.listbox_2.place(relx=0.65, rely=0.17, relheight=0.8, relwidth=0.3)
+        
+        treescrolly = tk.Scrollbar(self.listbox_2, orient="vertical", command=self.listbox_2.yview)
+        treescrollx = tk.Scrollbar(self.listbox_2, orient="horizontal", command=self.listbox_2.xview)
+        self.listbox_2.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)
+        treescrollx.pack(side="bottom", fill="x")
+        treescrolly.pack(side="right", fill="y")
+    
+        self.ViewDataBtn_2 = tk.Button(
+            self.Frame_2,
+            image=self.viewIcon,
+            text=f"   Voir le données {title}",
+            compound="left",
+            height=20,
+            width=190,
+            bd=1,
+            bg="#DCDCDC",
+            command=self.ViewData,
         ).place(relx=0.35, rely=0.8)
     
     def ContainerBtn(self, win, funct=None):
@@ -203,8 +249,8 @@ class AppUI():
             bg="#FAEBD7",)
         self.title.pack(side="bottom", fill="x")
         
-        self.Container(self.TopWindow, source)
-        self.Container(self.TopWindow, 'Sharepoint', position=1)
+        self.Container_1(self.TopWindow, source)
+        self.Container_2(self.TopWindow, 'Sharepoint')
         self.ContainerBtn(self.TopWindow)
 
     def Window_SAP_vs_Sharepoint(self):
@@ -401,12 +447,21 @@ class AppUI():
             except FileNotFoundError:
                 tk.messagebox.showerror("Information", f"No such file as {path_filename}")
                 return None
-            self.VarLabelPath.set(path_filename)
-            self.preview_data(path_filename, df)
+            
+            self.PathImport = path_filename
+            if self.id == 1:
+                self.VarLabelPath_1.set(path_filename)
+                self.df1 = df
+            elif self.id == 2:
+                self.VarLabelPath_2.get(path_filename)
+                self.df2 = df
 
         else:
             pass
-        
+
+    def ViewData(self):
+        self.preview_data(self.PathImport, self.df2)
+
     def Excel(self):
         self.typefile = "Excel"
         self.ImportData()

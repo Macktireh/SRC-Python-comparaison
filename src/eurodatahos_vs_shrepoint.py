@@ -136,8 +136,8 @@ class EuroShare():
 
     def reduce(self):
         # charger les données EuroDataHOS et sharepoint
-        self.df_hos = self.LoadData('excel', path_data_HOS)
-        self.df_sharepoint = self.LoadData('excel', path_data_sharepoint)
+        self.df_hos = self.LoadData('excel', self.path_data_HOS)
+        self.df_sharepoint = self.LoadData('excel', self.path_data_sharepoint)
 
         # Prétraiter les données EuroDataHOS et sharepoint
         self.df_hos = self.Preprocess_EuroDataHos(self.df_hos)
@@ -174,24 +174,4 @@ class EuroShare():
             self.path_Out, self.df_commun_avec_sh, "maj_sharepoint")
 
 
-Week = 48.1
-today = date.today().strftime("%d%m%y")
-path_data_HOS = "E:/AppTotalEnergies/SRC-Python-comparaison/InputData/DataAppWeek48.xlsx"
-path_data_sharepoint = "E:/AppTotalEnergies/SRC-Python-comparaison/InputData/sharepoint.xlsx"
-path_Out = f"E:/AppTotalEnergies/SRC-Python-comparaison/OutputData/KPI-SIS-AFRIQUE-S{Week}-{today}.xlsx"
 
-start = datetime.now()
-m = EuroShare(path_data_HOS, path_data_sharepoint, path_Out)
-m.reduce()
-
-os.system('cls' if os.name == 'nt' else 'clear')
-print()
-print("--------------------")
-print("Terminer avec succès")
-print("--------------------")
-print()
-
-end = datetime.now()
-tm = end - start
-print("temps d'exécution :", tm)
-print()
