@@ -253,7 +253,7 @@ class AppUI():
         
         self.Container_1(self.TopWindow, source)
         self.Container_2(self.TopWindow, 'Sharepoint')
-        self.ContainerBtn(self.TopWindow)
+        self.ContainerBtn(self.TopWindow, funct = self.runing)
 
     def Window_SAP_vs_Sharepoint(self):
         # self.subject = 
@@ -479,4 +479,6 @@ class AppUI():
         self.preview_data(self.PathImport, self.df2)
         
     def runing(self):
-        pass
+        p = f"E:/AppTotalEnergies/SRC-Python-comparaison/InputData/KPI-SIS-AFRIQUE-211221.xlsx"
+        m = EuroShare(self.VarLabelPath_1.get(), self.VarLabelPath_2.get(), p)
+        m.reduce()

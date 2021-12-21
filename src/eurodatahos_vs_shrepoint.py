@@ -51,8 +51,7 @@ class EuroShare():
         df['FCC/POSsolution'] = df['FCC / POSsolution'].str.strip()
 
         for h in range(df.shape[0]):
-            df['FCC/POSsolution'].iloc[h] = df['FCC/POSsolution'].iloc[h].split(" ")[
-                0]
+            df['FCC/POSsolution'].iloc[h] = df['FCC/POSsolution'].iloc[h].split(" ")[0]
             if df['Solution activée'].iloc[h] == "FCC + DMS-Shop":
                 if df['FCC/POSsolution'].iloc[h] == "FUELPOS":
                     df['Corespo Installed Solution'].iloc[h] = "DMS-FCC-POS"
@@ -65,14 +64,10 @@ class EuroShare():
         # self.df_sharepoint = pd.read_excel(self.path_data_sharepoint)
         df = df.drop_duplicates()
         df['SAPCode'] = df['SAPCode'].str.strip()
-        df['SAPCode'] = df['SAPCode'].astype(
-            str)
-        df['EPTConnected'] = df['EPTConnected'].str.strip(
-        )
-        df['ATGConnected'] = df['ATGConnected'].str.strip(
-        )
-        df['ATGConnected'] = df['ATGConnected'].replace(
-            "Not connected FCC", "Not Connected FCC")
+        df['SAPCode'] = df['SAPCode'].astype(str)
+        df['EPTConnected'] = df['EPTConnected'].str.strip()
+        df['ATGConnected'] = df['ATGConnected'].str.strip()
+        df['ATGConnected'] = df['ATGConnected'].replace("Not connected FCC", "Not Connected FCC")
 
         for s in range(df.shape[0]):
             if df['InstalledSolutionOnSite'].iloc[s] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS", "DMS-FCC-POS-BOS"]:
