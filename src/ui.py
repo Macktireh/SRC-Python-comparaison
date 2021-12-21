@@ -110,7 +110,7 @@ class AppUI():
             width=160,
             bd=1,
             bg="#DCDCDC",
-            command=self.Excel,
+            command=self.Excel_1,
             pady=2
         ).place(relx=0.23, rely=0.21)
 
@@ -132,7 +132,7 @@ class AppUI():
             width=190,
             bd=1,
             bg="#DCDCDC",
-            command=self.ViewData,
+            command=self.ViewData_1,
         ).place(relx=0.35, rely=0.8)
     
     def Container_2(self, win, title):
@@ -159,7 +159,7 @@ class AppUI():
             width=160,
             bd=1,
             bg="#DCDCDC",
-            command=self.Excel,
+            command=self.Excel_2,
             pady=2
         ).place(relx=0.23, rely=0.21)
 
@@ -181,7 +181,7 @@ class AppUI():
             width=190,
             bd=1,
             bg="#DCDCDC",
-            command=self.ViewData,
+            command=self.ViewData_2,
         ).place(relx=0.35, rely=0.8)
     
     def ContainerBtn(self, win, funct=None):
@@ -423,12 +423,12 @@ class AppUI():
                 filetype=(("xlsx files", "*.xlsx"), ("All Files", "*.*")),
             )
 
-        elif self.typefile == "CSV":
-            path_filename = filedialog.askopenfilename(
-                initialdir="E:\Total\Station Data\Master data\Data source",
-                title="Select A File",
-                filetype=(("csv files", "*.csv"), ("All Files", "*.*")),
-            )
+        # elif self.typefile == "CSV":
+        #     path_filename = filedialog.askopenfilename(
+        #         initialdir="E:\Total\Station Data\Master data\Data source",
+        #         title="Select A File",
+        #         filetype=(("csv files", "*.csv"), ("All Files", "*.*")),
+        #     )
 
         else:
             path_filename = filedialog.askopenfilename(
@@ -451,26 +451,32 @@ class AppUI():
                 tk.messagebox.showerror("Information", f"No such file as {path_filename}")
                 return None
             
-            self.PathImport = path_filename
-            if self.id == 1:
-                self.VarLabelPath_1.set(path_filename)
-                self.df1 = df
-            elif self.id == 2:
-                self.VarLabelPath_2.get(path_filename)
-                self.df2 = df
+            # self.PathImport = path_filename
+            return path_filename, df
+            # if self.id == 1:
+            #     self.VarLabelPath_1.set(path_filename)
+            #     self.df1 = df
+            # elif self.id == 2:
+            #     self.VarLabelPath_2.get(path_filename)
+            #     self.df2 = df
 
         else:
             pass
 
-    def ViewData(self):
-        self.preview_data(self.PathImport, self.df2)
 
-    def Excel(self):
+    def Excel_1(self):
         self.typefile = "Excel"
-        self.ImportData()
-    def CSV(self):
-        self.typefile = "CSV"
-        self.ImportData()
+        self.PathImport, self.df1 = self.ImportData()
+        self.VarLabelPath_1.set(self.PathImport)
+    def Excel_2(self):
+        self.typefile = "Excel"
+        self.PathImport, self.df2 = self.ImportData()
+        self.VarLabelPath_2.set(self.PathImport)
+        
+    def ViewData_1(self):
+        self.preview_data(self.PathImport, self.df1)
+    def ViewData_2(self):
+        self.preview_data(self.PathImport, self.df2)
         
     def runing(self):
         pass
