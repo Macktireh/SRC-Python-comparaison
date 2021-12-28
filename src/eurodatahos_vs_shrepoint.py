@@ -43,6 +43,8 @@ class EuroShare():
         return self.df
 
     def Preprocess_EuroDataHos(self, df):
+        
+        df = df[df['DMSActive'] == 1]
 
         #df.rename(columns={'SAPCODE': 'SAPCode'}, inplace=True)
         df = df.drop_duplicates(subset="SAPCode", keep='first')
@@ -68,6 +70,7 @@ class EuroShare():
         df['EPTConnected'] = df['EPTConnected'].str.strip()
         df['ATGConnected'] = df['ATGConnected'].str.strip()
         df['ATGConnected'] = df['ATGConnected'].replace("Not connected FCC", "Not Connected FCC")
+        
 
         for s in range(df.shape[0]):
             if df['InstalledSolutionOnSite'].iloc[s] in ["FCC-POS", "DMS-FCC-POS", "FCC-POS-BOS", "DMS-FCC-POS-BOS"]:
