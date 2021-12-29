@@ -44,7 +44,7 @@ class EuroShare():
 
     def Preprocess_EuroDataHos(self, df):
         
-        df = df[df['DMSActive'] == 1]
+        # df = df[df['DMSActive'] == 1]
 
         #df.rename(columns={'SAPCODE': 'SAPCode'}, inplace=True)
         df = df.drop_duplicates(subset="SAPCode", keep='first')
@@ -132,6 +132,13 @@ class EuroShare():
                             self.df_commun_avec_sh['ATGConnected'].iloc[j] = self.df_hos['Coresp ATG Connected'].iloc[k]
                             self.df_commun_avec_sh['ATGConnected Source'].iloc[j] = self.df_hos['ATGConnected Source'].iloc[k]
 
+    def Merge_Data(self, key):
+        dfmerge_hos = self.df_hos.copy()
+        dfmerge_hos = dfmerge_hos[[key, 'Poling', 'DMSActive']]
+        self.df_commun_avec_sh = self.df_commun_avec_sh.merge(dfmerge_hos, how='left', on=key)
+        self.df_commun_avec_sh = self.df_commun_avec_sh.drop(['key','key-1'], axis=1)
+        return self.df_commun_avec_sh
+    
     def reduce(self):
         # charger les données EuroDataHOS et sharepoint
         self.df_hos = self.LoadData('excel', self.path_data_HOS)
@@ -166,10 +173,10 @@ class EuroShare():
 
         # Transformer la colonnes InstalledSolutionOnSite de la table MAJ (ex: "DMS" => "01- DMS#")
         self.ecoder_InstalledSolutionOnSite(self.df_commun_avec_sh)
+        
+        # ramener les colonnes DMSActive et Poling dans self.df_commun_avec_sh
+        self.Merge_Data('SAPCode')
 
         # Exporter les données MAJ
         self.export_excel_add_new_sheet(
             self.path_Out, self.df_commun_avec_sh, "maj_sharepoint")
-
-
-
