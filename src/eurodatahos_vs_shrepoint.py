@@ -14,9 +14,9 @@ class EuroShare():
         comperer : permet 
     """
 
-    def __init__(self, path_data_HOS, path_data_sharepoint, path_Out):
-        self.path_data_HOS = path_data_HOS
-        self.path_data_sharepoint = path_data_sharepoint
+    def __init__(self, df_hos, df_sharepoint, path_Out):
+        self.df_hos = df_hos
+        self.df_sharepoint = df_sharepoint
         self.path_Out = path_Out
 
     def comparer(self, df_X, df_Y, col):
@@ -136,13 +136,13 @@ class EuroShare():
         dfmerge_hos = self.df_hos.copy()
         dfmerge_hos = dfmerge_hos[[key, 'Poling', 'DMSActive']]
         self.df_commun_avec_sh = self.df_commun_avec_sh.merge(dfmerge_hos, how='left', on=key)
-        self.df_commun_avec_sh = self.df_commun_avec_sh.drop(['key','key-1'], axis=1)
+        # self.df_commun_avec_sh = self.df_commun_avec_sh.drop(['key','key-1'], axis=1)
         return self.df_commun_avec_sh
     
     def reduce(self):
         # charger les données EuroDataHOS et sharepoint
-        self.df_hos = self.LoadData('excel', self.path_data_HOS)
-        self.df_sharepoint = self.LoadData('excel', self.path_data_sharepoint)
+        # self.df_hos = self.LoadData('excel', self.path_data_HOS)
+        # self.df_sharepoint = self.LoadData('excel', self.path_data_sharepoint)
 
         # Prétraiter les données EuroDataHOS et sharepoint
         self.df_hos = self.Preprocess_EuroDataHos(self.df_hos)
