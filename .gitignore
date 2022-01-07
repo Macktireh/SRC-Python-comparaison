@@ -1,4 +1,9 @@
 .venv
 __pycache__
-InputData
-OutputData
+brute
+old
+DataAppWeek48.xlsx
+DataAppWeek52.xlsx
+processes.pbix
+sharepoint.xlsx
+sharepoint1.xlsx
