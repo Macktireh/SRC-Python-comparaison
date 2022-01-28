@@ -53,7 +53,7 @@ class EuroShare():
         df['FCC/POSsolution'] = df['FCC / POSsolution'].str.strip()
 
         for h in range(df.shape[0]):
-            df['FCC/POSsolution'].iloc[h] = df['FCC/POSsolution'].iloc[h].split(" ")[0]
+            df['FCC/POSsolution'].iloc[h] = df['FCC/POSsolution'].astype(str).iloc[h].split(" ")[0]
             if df['Solution activée'].iloc[h] == "FCC + DMS-Shop":
                 if df['FCC/POSsolution'].iloc[h] == "FUELPOS":
                     df['Corespo Installed Solution'].iloc[h] = "DMS-FCC-POS"
@@ -134,7 +134,7 @@ class EuroShare():
 
     def Merge_Data(self, key):
         dfmerge_hos = self.df_hos.copy()
-        dfmerge_hos = dfmerge_hos[[key, 'Poling', 'DMSActive']]
+        dfmerge_hos = dfmerge_hos[[key, 'Poling', 'DMSActive', 'Connexion : Site DMS  non-fuel active']]
         self.df_commun_avec_sh = self.df_commun_avec_sh.merge(dfmerge_hos, how='left', on=key)
         # self.df_commun_avec_sh = self.df_commun_avec_sh.drop(['key','key-1'], axis=1)
         return self.df_commun_avec_sh
@@ -174,7 +174,7 @@ class EuroShare():
         # Transformer la colonnes InstalledSolutionOnSite de la table MAJ (ex: "DMS" => "01- DMS#")
         self.ecoder_InstalledSolutionOnSite(self.df_commun_avec_sh)
         
-        # ramener les colonnes DMSActive et Poling dans self.df_commun_avec_sh
+        # ramener les colonnes DMSActive, Poling et 'Connexion : Site DMS  non-fuel active' dans self.df_commun_avec_sh
         self.Merge_Data('SAPCode')
 
         # Exporter les données MAJ
